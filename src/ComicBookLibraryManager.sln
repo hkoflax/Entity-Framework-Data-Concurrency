@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComicBookShared", "ComicBoo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComicBookLibraryManager", "ComicBookLibraryManager\ComicBookLibraryManager.csproj", "{942339E8-F775-454B-AE39-A87DA5843EFF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComicBooklibraryManagerWebApp", "ComicBooklibraryManagerWebApp\ComicBooklibraryManagerWebApp.csproj", "{7EF631FD-1A5D-479B-BD32-312E7C212BCB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComicBookLibraryManagerWebApp", "ComicBooklibraryManagerWebApp\ComicBookLibraryManagerWebApp.csproj", "{7EF631FD-1A5D-479B-BD32-312E7C212BCB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

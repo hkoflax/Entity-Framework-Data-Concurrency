@@ -9,7 +9,8 @@ using ComicBookLibraryManagerWebApp.ViewModels;
 using System.Net;
 using System.Data.Entity.Infrastructure;
 using ComicBookShared.Data;
-using ComicBooklibraryManagerWebApp.Controllers;
+using ComicBookLibraryManagerWebApp.Controllers;
+using ComicBookLibraryManagerWebApp.ViewModels;
 
 namespace ComicBookLibraryManagerWebApp.Controllers
 {
@@ -128,11 +129,36 @@ namespace ComicBookLibraryManagerWebApp.Controllers
                 var comicBook = viewModel.ComicBook;
 
                 // TODO Update the comic book.
-                _comicBookRepository.Update(comicBook);
+                try
+                {
+                    _comicBookRepository.Update(comicBook);
 
-                TempData["Message"] = "Your comic book was successfully updated!";
+                    TempData["Message"] = "Your comic book was successfully updated!";
 
-                return RedirectToAction("Detail", new { id = comicBook.Id });
+                    return RedirectToAction("Detail", new { id = comicBook.Id });
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    string message = null;
+
+                    var entitypropertyValues = ex.Entries.Single().GetDatabaseValues();
+                    if (entitypropertyValues==null)
+                    {
+                        message = "The comic  book being updated has been deleted by another user. " +
+                            "Click 'cancel' button to return to list page";
+                        viewModel.ComicBookHasBeenDeleted=true;
+                    }
+                    else
+                    {
+                        message = "The comic book being updated has already been updated by another user. If you still " +
+                            "want to make your changes the click the 'Save' button again. Otherwise click the 'Cancel' button " +
+                            "to discard your changes";
+
+                        comicBook.RowVersion = ((ComicBook)entitypropertyValues.ToObject()).RowVersion;
+                    }
+
+                    ModelState.AddModelError(string.Empty, message);
+                }
             }
 
             viewModel.Init(Repository,_seriesRepository,_artistRepository);
@@ -156,18 +182,48 @@ namespace ComicBookLibraryManagerWebApp.Controllers
                 return HttpNotFound();
             }
 
-            return View(comicBook);
+            var viewModel = new ComicBooksDeleteViewModel()
+            {
+                ComicBook = comicBook
+            };
+            return View(viewModel);
         }
 
         [HttpPost]
-        public ActionResult Delete(int id)
+        public ActionResult Delete(ComicBooksDeleteViewModel viewModel)
         {
-            // TODO Delete the comic book.
-            _comicBookRepository.Delete(id);
+            try
+            {
+                // TODO Delete the comic book.
+                _comicBookRepository.Delete(viewModel.ComicBook.Id, viewModel.ComicBook.RowVersion);
 
-            TempData["Message"] = "Your comic book was successfully deleted!";
+                TempData["Message"] = "Your comic book was successfully deleted!";
 
-            return RedirectToAction("Index");
+                return RedirectToAction("Index");
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                string message = null;
+
+                var entitypropertyValues = ex.Entries.Single().GetDatabaseValues();
+                if (entitypropertyValues == null)
+                {
+                    message = "The comic  book being deleted has been deleted by another user. " +
+                        "Click 'cancel' button to return to list page";
+                    viewModel.ComicBookHasBeenDeleted = true;
+                }
+                else
+                {
+                    message = "The comic book being deleted has already been updated by another user. If you still " +
+                        "want to delete the comic then click the 'Delete' button again. Otherwise click the 'Cancel' button " +
+                        "to return to detail page";
+
+                    viewModel.ComicBook.RowVersion = ((ComicBook)entitypropertyValues.ToObject()).RowVersion;
+                }
+
+                ModelState.AddModelError(string.Empty, message);
+                return View(viewModel);
+            }
         }
 
         /// <summary>

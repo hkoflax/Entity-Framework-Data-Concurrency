@@ -1,4 +1,4 @@
-﻿using ComicBooklibraryManagerWebApp.Controllers;
+﻿using ComicBookLibraryManagerWebApp.Controllers;
 using ComicBookShared.Data;
 using ComicBookShared.Models;
 using System;

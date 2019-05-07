@@ -10,7 +10,7 @@ namespace ComicBookShared.Data
 {
     public class ComicBookRepository : BaseRepository<ComicBook>
     {
-        public ComicBookRepository(Context context) : base (context)
+        public ComicBookRepository(Context context) : base(context)
         {
         }
         public override IList<ComicBook> GetList()
@@ -21,6 +21,7 @@ namespace ComicBookShared.Data
                     .ThenBy(cb => cb.IssueNumber)
                     .ToList();
         }
+
         public override ComicBook Get(int id, bool includeRelatedEntities = true)
         {
             var comicBooks = Context.ComicBooks.AsQueryable();
@@ -34,6 +35,17 @@ namespace ComicBookShared.Data
             return comicBooks
                     .Where(cb => cb.Id == id)
                     .SingleOrDefault();
+        }
+
+        public void Delete(int id, byte[] rowVersion)
+        {
+            var comicBook = new ComicBook()
+            {
+                Id = id,
+                RowVersion = rowVersion
+            };
+            Context.Entry(comicBook).State = EntityState.Deleted;
+            Context.SaveChanges();
         }
         public bool ComicBookSerieshasissueNumber(int comicBookId, int seriesId, int issueNumber)
         {
